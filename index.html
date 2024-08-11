@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .counter {
+            text-align: center;
+        }
+        #count {
+            font-size: 72px;
+            margin: 20px 0;
+        }
+        button {
+            font-size: 24px;
+            margin: 0 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="counter">
+        <div id="count">0</div>
+        <button onclick="changeCount(-1)">-</button>
+        <button onclick="changeCount(1)">+</button>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+        import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSkhVYOKJgMt0OYhVKsuzYrV4isIqk7mU",
+            authDomain: "qc-counter.firebaseapp.com",
+            databaseURL: "https://qc-counter-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "qc-counter",
+            storageBucket: "qc-counter.appspot.com",
+            messagingSenderId: "444554101728",
+            appId: "1:444554101728:web:2a12424e3b689fb3a0a185",
+            measurementId: "G-L2BXRXJ1Y8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+        const countRef = ref(database, 'count');
+
+        function updateCount(newCount) {
+            document.getElementById('count').textContent = newCount;
+        }
+
+        window.changeCount = function(amount) {
+            runTransaction(countRef, (currentCount) => {
+                return (currentCount || 0) + amount;
+            });
+        };
+
+        // Listen for changes to the count
+        onValue(countRef, (snapshot) => {
+            updateCount(snapshot.val() || 0);
+        });
+    </script>
+</body>
+</html>
